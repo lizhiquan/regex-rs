@@ -39,7 +39,7 @@ pub(crate) enum Quantifier {
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Unit {
     ImplicitGroup(Vec<Unit>),
-    Group { index: i32, children: Vec<Unit> },
+    Group { index: usize, children: Vec<Unit> },
     CharacterClass(CharacterClass),
     Anchor(Anchor),
     QuantifiedExpr { expr: Box<Unit>, quantifier: Quantifier },
@@ -106,7 +106,7 @@ impl fmt::Display for Unit {
 
 pub(crate) struct Parser<'a> {
     iter: Peekable<Chars<'a>>,
-    group_index: i32,
+    group_index: usize,
 }
 
 impl Parser<'_> {
@@ -325,6 +325,9 @@ impl Parser<'_> {
             self.iter.next();
         }
         let index = digits.parse::<usize>()?;
+        if index >= self.group_index {
+            return Err(anyhow!("invalid backreference: {}", index));
+        }
         Ok(Some(Unit::Backreference(index)))
     }
 
