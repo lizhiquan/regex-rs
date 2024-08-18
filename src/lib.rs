@@ -1,4 +1,4 @@
-use compiler::compile;
+use compiler::Compiler;
 use matcher::Matcher;
 use parser::Parser;
 
@@ -20,8 +20,8 @@ impl Regex {
     pub fn matches(&self, text: &str) -> bool {
         let mut parser = Parser::new(&self.pattern);
         let unit = parser.parse().unwrap();
-        let fsm = compile(unit);
-        let mut matcher = Matcher::new(fsm, text);
+        let machine = Compiler::compile(&unit);
+        let mut matcher = Matcher::new(machine, text);
         matcher.matches()
     }
 }
@@ -32,7 +32,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let regex = Regex::new("\\d \\w\\w\\ws");
-        assert!(regex.matches("sally has 1 dog"));
+        let regex = Regex::new(r"((\w\w\w\w) (\d\d\d)) is doing \2 \3 times, and again \1 times");
+        assert!(regex.matches("grep 101 is doing grep 101 times, and again grep 101 times"));
     }
 }

@@ -5,13 +5,10 @@ use std::{fmt, iter::Peekable, str::Chars};
 pub(crate) enum CharacterClass {
     Char(char),
     // String(String),
-    Digit,    // \d
-    Word,     // \w
-    Wildcard, // .
-    Group {
-        negative: bool,
-        items: Vec<CharacterGroupItem>,
-    }, // [abc] [^abc]
+    Digit,                                                    // \d
+    Word,                                                     // \w
+    Wildcard,                                                 // .
+    Group { negative: bool, items: Vec<CharacterGroupItem> }, // [abc] [^abc]
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -74,9 +71,9 @@ fn fmt_with_indent(u: &Unit, f: &mut fmt::Formatter<'_>, indent: usize) -> fmt::
                 let indent_str = " ".repeat(indent + 2);
                 for item in items {
                     match item {
-                        CharacterGroupItem::Char(c) => writeln!(f, "{}  Char({})", indent_str, c)?,
-                        CharacterGroupItem::Digit => writeln!(f, "{}  DigitClass", indent_str)?,
-                        CharacterGroupItem::Word => writeln!(f, "{}  WordClass", indent_str)?,
+                        CharacterGroupItem::Char(c) => writeln!(f, "{}- Char({})", indent_str, c)?,
+                        CharacterGroupItem::Digit => writeln!(f, "{}- DigitClass", indent_str)?,
+                        CharacterGroupItem::Word => writeln!(f, "{}- WordClass", indent_str)?,
                     }
                 }
             }
@@ -337,10 +334,7 @@ impl Parser<'_> {
 
         let expr = self.expression()?;
         self.consume(')')?;
-        let group = Unit::Group {
-            index,
-            children: vec![expr],
-        };
+        let group = Unit::Group { index, children: vec![expr] };
 
         if let Ok(Some(quantifier)) = self.quantifier() {
             return Ok(Unit::QuantifiedExpr {
